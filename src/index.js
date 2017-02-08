@@ -10,6 +10,17 @@
  Зарпещено использовать встроенные методы для работы с массивами
  */
 function isAllTrue(array, fn) {
+    var item,
+        result = true;
+
+    isFullArray(array);
+    isFunction(fn);
+
+    for (item of array) {
+        result = fn(item);
+    }
+
+    return result;
 }
 
 /*
@@ -22,6 +33,18 @@ function isAllTrue(array, fn) {
  Зарпещено использовать встроенные методы для работы с массивами
  */
 function isSomeTrue(array, fn) {
+    var item;
+
+    isFullArray(array);
+    isFunction(fn);
+
+    for (item of array) {
+        if (fn(item)) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 /*
@@ -33,6 +56,20 @@ function isSomeTrue(array, fn) {
  - fn не является функцией (с текстом "fn is not a function")
  */
 function returnBadArguments(fn) {
+    var i = 1,
+        badArguments = [];
+
+    isFunction(fn);
+
+    for (i; i < arguments.length; i++) {
+        try {
+            fn(arguments[i]);
+        } catch (e) {
+            badArguments.push(arguments[i]);
+        }
+    }
+
+    return badArguments;
 }
 
 /*
@@ -43,7 +80,7 @@ function returnBadArguments(fn) {
 function findError(data1, data2) {
     return (function() {
         for (var i = 0; i < data1.length; i++) {
-            if (data1[i] !== data2[i]) {
+            if (data1[i].toString() !== data2[i].toString()) {
                 return false;
             }
         }
@@ -66,7 +103,81 @@ function findError(data1, data2) {
  - number не является числом (с текстом "number is not a number")
  - какой-либо из аргументов div является нулем (с текстом "division by 0")
  */
-function calculator(number) {
+function calculator(number = 0) {
+    isNumber(number);
+
+    return {
+        number: number,
+
+        sum: function() {
+            var i,
+                result = this.number;
+
+            for (i = 0; i < arguments.length; i++) {
+                result += arguments[i];
+            }
+
+            return result;
+        },
+
+        dif: function() {
+            var i,
+                result = this.number;
+
+            for (i = 0; i < arguments.length; i++) {
+                result -= arguments[i];
+            }
+
+            return result;
+        },
+
+        div: function() {
+            var i,
+                result = this.number;
+
+            for (i = 0; i < arguments.length; i++) {
+                isArgEqZero(arguments[i])
+                result /= arguments[i];
+            }
+
+            return result;
+        },
+
+        mul: function() {
+            var i,
+                result = this.number;
+
+            for (i = 0; i < arguments.length; i++) {
+                result *= arguments[i];
+            }
+
+            return result;
+        }
+    };
+}
+
+function isFullArray(array) {
+    if (!(array instanceof Array && array.length > 0)) {
+        throw new Error('empty array');
+    }
+}
+
+function isFunction(fn) {
+    if (typeof fn !== 'function') {
+        throw new Error('fn is not a function');
+    }
+}
+
+function isNumber(number) {
+    if (!Number.isFinite(number)) {
+        throw new Error('number is not a number');
+    }
+}
+
+function isArgEqZero(arg) {
+    if (arg === 0) {
+        throw new Error('division by 0');
+    }
 }
 
 export {
