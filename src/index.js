@@ -126,7 +126,7 @@ function createProxy(obj) {
     obj = new Proxy(obj, {
         set(target, prop, value) {
             target[prop] = Math.pow(value, 2);
-            
+
             return true;
         }
     });
