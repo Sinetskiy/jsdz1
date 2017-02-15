@@ -1,109 +1,290 @@
+const nativeSlice = Array.prototype.slice;
+const nativeMap = Array.prototype.map;
+const nativeReduce = Array.prototype.reduce;
+
 import assert from 'assert';
 import {
-    returnFirstArgument,
-    defaultParameterValue,
-    returnArgumentsArray,
-    returnFnResult,
-    returnCounter,
-    bindFunction
+    forEach,
+    map,
+    reduce,
+    deleteProperty,
+    hasProperty,
+    getEnumProps,
+    upperProps,
+    slice,
+    createProxy
 } from '../src/index';
 
-describe('ДЗ 1 - функции', () => {
-    describe('returnFirstArgument', () => {
-        it('должна возвращать переданный аргумент', () => {
-            let result = returnFirstArgument(10);
+describe('ДЗ 3 - объекты и массивы', () => {
+    describe('forEach', () => {
+        it('должна вызывать функцию для каждого элемента массива и передавать элемент первым аргументом', () => {
+            let array = [1, 2, 3, 4, 5];
+            let passed = [];
 
-            assert(result === 10);
+            forEach(array, el => passed.push(el));
+
+            assert.deepEqual(array, passed);
+        });
+
+        it('должна передавать индекс элемента вторым аргументом', () => {
+            let array = [1, 2, 3, 4, 5];
+            let index = 0;
+
+            forEach(array, (el, i) => assert.equal(i, index++));
+        });
+
+        it('должна передавать сам массив третьим аргументом', () => {
+            let array = [1, 2, 3, 4, 5];
+
+            forEach(array, (el, i, a) => assert.strictEqual(a, array));
         });
     });
 
-    describe('defaultParameterValue', () => {
-        it('должна возвращать сумму переданных аргументов', () => {
-            let result = defaultParameterValue(10, 20);
+    describe('map', () => {
+        it('должна вызывать функцию для каждого элемента массива и передавать элемент первым аргументом', () => {
+            let array = [1, 2, 3, 4, 5];
+            let passed = [];
 
-            assert(result === 30);
+            map(array, el => passed.push(el));
+
+            assert.deepEqual(array, passed);
         });
 
-        it('значение по умолчанию второго аргумента должно быть 100', () => {
-            let result = defaultParameterValue(10);
+        it('должна передавать индекс элемента вторым аргументом', () => {
+            let array = [1, 2, 3, 4, 5];
+            let index = 0;
 
-            assert(result === 110);
+            map(array, (el, i) => assert.equal(i, index++));
+        });
+
+        it('должна передавать сам массив третьим аргументом', () => {
+            let array = [1, 2, 3, 4, 5];
+
+            map(array, (el, i, a) => assert.strictEqual(a, array));
+        });
+
+        it('должна возвращать измененную копию массива', () => {
+            let array = [1, 2, 3, 4, 5];
+            let target = nativeMap.call(array, el => el ** 2);
+            let result = map(array, el => el ** 2);
+
+            assert.deepEqual(result, target);
+        });
+
+        it('не должна изменять оригинальный массив', () => {
+            let array = [1, 2, 3, 4, 5];
+            let arrayCopy = nativeSlice.call(array);
+
+            map(array, el => el ** 2);
+            assert.deepEqual(array, arrayCopy);
         });
     });
 
-    describe('returnArgumentsArray', () => {
-        it('должна возвращать переданные аргументы в виде массива', () => {
+    describe('reduce', () => {
+        it('должна вызывать функцию для каждого элемента и передавать предыдущий результат первым аргументом', () => {
+            let array = [1, 2, 3, 4, 5];
+            let i = 0;
+            let prevResult = array[0];
+
+            reduce(array, prev => {
+                assert.equal(prev, prevResult);
+
+                return prevResult = i++;
+            });
+        });
+
+        it('должна учитывать initial', () => {
+            let array = [1, 2, 3, 4, 5];
+            let passed = [];
+
+            reduce(array, prev => passed.push(prev), 10);
+            assert.deepEqual(passed[0], 10);
+        });
+
+        it('если initial не указан, то при первой итерации в prev передается первый элемент массива', () => {
+            let array = [1, 2, 3, 4, 5];
+            let passed = [];
+
+            reduce(array, prev => passed.push(prev));
+            assert.deepEqual(passed[0], 1);
+        });
+
+        it('должна передавать элемент вторым аргументом', () => {
+            let array = [1, 2, 3, 4, 5];
+            let passed = [];
+
+            reduce(array, (prev, el) => passed.push(el));
+            assert.deepEqual(array.slice(1), passed);
+
+            passed = [];
+            reduce(array, (prev, el) => passed.push(el), 10); // с учетом initial
+            assert.deepEqual(array, passed);
+        });
+
+        it('должна передавать индекс элемента третьим аргументом', () => {
+            let array = [1, 2, 3, 4, 5];
+            let index = 1;
+
+            reduce(array, (prev, el, i) => assert.equal(i, index++));
+
+            index = 0;
+            reduce(array, (prev, el, i) => assert.equal(i, index++), 10); // с учетом initial
+        });
+
+        it('должна передавать сам массив четвертым аргументом', () => {
+            let array = [1, 2, 3, 4, 5];
+
+            reduce(array, (prev, el, i, a) => assert.strictEqual(a, array));
+        });
+
+        it('не должна изменять оригинальный массив', () => {
+            let array = [1, 2, 3, 4, 5];
+            let arrayCopy = nativeSlice.call(array);
+
+            reduce(array, el => el ** 2);
+            assert.deepEqual(array, arrayCopy);
+        });
+
+        it('общая проверка работоспособности', () => {
+            let array = [1, 2, 3, 4, 5];
+            let target = nativeReduce.call(array, (prev, el) => prev + el);
+            let result = reduce(array, (prev, el) => prev + el);
+
+            assert.deepEqual(result, target);
+
+            target = nativeReduce.call(array, (prev, el) => prev + el, 10);
+            result = reduce(array, (prev, el) => prev + el, 10);
+            assert.deepEqual(result, target);
+        });
+    });
+
+    describe('deleteProperty', () => {
+        it('должна удалять указанное свойство из объекта', () => {
+            let obj = { a: 1 };
+
+            deleteProperty(obj, 'a');
+
+            assert.equal('a' in obj, false)
+        });
+    });
+
+    describe('hasProperty', () => {
+        it('должна возвращать true если объект имеет указанное свойство и false в противном случае', () => {
+            let obj = { a: 1 };
+
+            assert.equal(hasProperty(obj, 'a'), true);
+            assert.equal(hasProperty(obj, 'b'), false);
+        });
+    });
+
+    describe('getEnumProps', () => {
+        it('должна возвращать массив только с перечисляемыми свойствами', () => {
+            let obj = { a: 1, b: 2 };
+            let target = ['a', 'b'];
             let result;
 
-            result = returnArgumentsArray('привет', 'loftschool');
-            assert.deepEqual(result, ['привет', 'loftschool']);
+            Object.defineProperty(obj, 'c', { enumerable: false });
+            result = getEnumProps(obj);
 
-            result = returnArgumentsArray('привет', 'loftschool', '!', '!', '!');
-            assert.deepEqual(result, ['привет', 'loftschool', '!', '!', '!']);
-        });
-
-        it('должна возвращать пустой массив если нет аргументов', () => {
-            let result = returnArgumentsArray();
-
-            assert.deepEqual(result, []);
+            assert.deepEqual(result, target);
         });
     });
 
-    describe('returnFnResult', () => {
-        it('должна возвращать результат вызова переданной функции', () => {
-            function fn() {
-                return 100;
-            }
+    describe('upperProps', () => {
+        it('должна возвращать массив с именами свойств и преобразовывать эти имена в верхний регистр', () => {
+            let obj = { a: 1, b: 2 };
+            let target = ['A', 'B'];
+            let result = upperProps(obj);
 
-            let result = returnFnResult(fn);
-
-            assert(result === 100);
+            assert.deepEqual(result, target);
         });
     });
 
-    describe('returnCounter', () => {
-        it('должна возвращать функцию', () => {
-            let result = returnCounter();
+    describe('slice', () => {
+        it('общая проверка работоспособности', () => {
+            let array = [1, 2, 3, 4, 5, 6, 7];
+            let target = nativeSlice.call(array);
+            let result = slice(array);
 
-            assert(typeof result === 'function');
-        });
+            assert.deepEqual(result, target);
 
-        it('возвращаемая функция должна увеличивать переданное число на единицу при каждом вызове', () => {
-            let result = returnCounter(10);
+            target = nativeSlice.call(array, 0);
+            result = slice(array, 0);
+            assert.deepEqual(result, target);
 
-            assert(result() === 11);
-            assert(result() === 12);
-            assert(result() === 13);
-        });
+            target = nativeSlice.call(array, 0, 0);
+            result = slice(array, 0, 0);
+            assert.deepEqual(result, target);
 
-        it('значение аргумента должно быть 0 по умолчанию', () => {
-            let result = returnCounter();
+            target = nativeSlice.call(array, 0, 1);
+            result = slice(array, 0, 1);
+            assert.deepEqual(result, target);
 
-            assert(result() === 1);
-            assert(result() === 2);
-            assert(result() === 3);
+            target = nativeSlice.call(array, 0, 2);
+            result = slice(array, 0, 2);
+            assert.deepEqual(result, target);
+
+            target = nativeSlice.call(array, 0, 5);
+            result = slice(array, 0, 5);
+            assert.deepEqual(result, target);
+
+            target = nativeSlice.call(array, 0, -1);
+            result = slice(array, 0, -1);
+            assert.deepEqual(result, target);
+
+            target = nativeSlice.call(array, 0, -3);
+            result = slice(array, 0, -3);
+            assert.deepEqual(result, target);
+
+            target = nativeSlice.call(array, 0, -10000);
+            result = slice(array, 0, -10000);
+            assert.deepEqual(result, target);
+
+            target = nativeSlice.call(array, 3);
+            result = slice(array, 3);
+            assert.deepEqual(result, target);
+
+            target = nativeSlice.call(array, 3, -100);
+            result = slice(array, 3, -100);
+            assert.deepEqual(result, target);
+
+            target = nativeSlice.call(array, 3, 100);
+            result = slice(array, 3, 100);
+            assert.deepEqual(result, target);
+
+            target = nativeSlice.call(array, 3, 5);
+            result = slice(array, 3, 5);
+            assert.deepEqual(result, target);
+
+            target = nativeSlice.call(array, 9999);
+            result = slice(array, 9999);
+            assert.deepEqual(result, target);
+
+            target = nativeSlice.call(array, -9999);
+            result = slice(array, -9999);
+            assert.deepEqual(result, target);
+
+            target = nativeSlice.call(array, -9999, 4);
+            result = slice(array, -9999, 4);
+            assert.deepEqual(result, target);
+
+            target = nativeSlice.call(array, -9999, -4);
+            result = slice(array, -9999, -4);
+            assert.deepEqual(result, target);
         });
     });
 
-    describe('bindFunction', () => {
-        it('должна возвращать функцию', () => {
-            function fn(a, b) {
-                return a + b;
-            }
+    describe('createProxy', () => {
+        it('должна вернуть Proxy, который возводит в квадрат любое записываемое значение', () => {
+            let obj = {};
 
-            let result = bindFunction(fn);
+            obj = createProxy(obj);
 
-            assert(typeof result === 'function');
-        });
+            obj.a = 2;
+            obj.b = 5;
 
-        it('должна привязывать аргументы возвращаемой функции', () => {
-            function fn(a, b) {
-                return a + b;
-            }
-
-            let result = bindFunction(fn, 10, 20);
-
-            assert(result() === 30);
+            assert.equal(obj.a, 4);
+            assert.equal(obj.b, 25);
         });
     });
 });
