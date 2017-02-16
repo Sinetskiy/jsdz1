@@ -8,6 +8,7 @@
  */
 function createDivWithText(text) {
     var div = document.createElement('div');
+
     div.innerText = text;
 
     return div;
@@ -21,6 +22,7 @@ function createDivWithText(text) {
  */
 function createAWithHref(hrefValue) {
     var a = document.createElement('a');
+
     a.setAttribute('href', hrefValue);
 
     return a;
@@ -129,6 +131,7 @@ function deleteTextNodesRecursive(where) {
             i--;
         }
     }
+
     return where;
 }
 
@@ -154,7 +157,37 @@ function deleteTextNodesRecursive(where) {
  *   texts: 3
  * }
  */
-function collectDOMStat(root) {}
+function collectDOMStat(root) {
+    var node,
+        nodes = root.childNodes,
+        cssClass,
+        cssClasses,
+        result = arguments[1] || { tags: {}, classes: {}, texts: 0 };
+
+    for (node of nodes) {
+        if (node.nodeType == Node.TEXT_NODE) {
+            result.texts++;
+            continue;
+        }
+
+        if (node.nodeType == Node.ELEMENT_NODE) {
+            result.tags[node.tagName] = result.tags.hasOwnProperty(node.tagName) ? 
+                                            result.tags[node.tagName] + 1 : 1;
+
+            cssClasses = node.classList;
+            for (cssClass of cssClasses) {
+                result.classes[cssClass] = result.classes.hasOwnProperty(cssClass) ? 
+                                            result.classes[cssClass] + 1 : 1;
+            }
+        
+            if (node.childNodes.length > 0) {
+                result = collectDOMStat(node, result);
+            }
+        }
+    }
+
+    return result;
+}
 
 /**
  * *** Со звездочкой ***
