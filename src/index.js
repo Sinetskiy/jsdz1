@@ -1,147 +1,70 @@
-/* ДЗ 3 - объекты и массивы */
+/* ДЗ 5.1 - DOM Events */
 
-/*
- Задача 1:
- Напишите аналог встроенного метода forEach для работы с массивами
+/**
+ * Функция должна добавлять обработчик fn события eventName к элементу target
+ *
+ * @param {string} eventName - имя события, на которое нужно добавить обработчик
+ * @param {Element} target - элемент, на который нужно добавить обработчик
+ * @param {function} fn - обработчик
  */
-function forEach(array, fn) {
-    var i;
-
-    for (i = 0; i < array.length; i++) {
-        fn(array[i], i, array);
-    }
+function addListener(eventName, target, fn) {
 }
 
-/*
- Задача 2:
- Напишите аналог встроенного метода map для работы с массивами
+/**
+ * Функция должна удалять обработчик fn события eventName у элемента target
+ *
+ * @param {string} eventName - имя события, для которого нужно удалить обработчик
+ * @param {Element} target - элемент, у которого нужно удалить обработчик
+ * @param {function} fn - обработчик
  */
-function map(array, fn) {
-    var i,
-        resultArray = [];
-
-    for (i = 0; i < array.length; i++) {
-        resultArray.push(fn(array[i], i, array));
-    }
-
-    return resultArray;
+function removeListener(eventName, target, fn) {
 }
 
-/*
- Задача 3:
- Напишите аналог встроенного метода reduce для работы с массивами
+/**
+ * Функция должна добавлять к target обработчик события eventName, который должен отменять действие по умолчанию
+ *
+ * @param {string} eventName - имя события, для которого нужно удалить обработчик
+ * @param {Element} target - элемент, на который нужно добавить обработчик
  */
-function reduce(array, fn, initial) {
-    var i = 1,
-        result = array[0];
-
-    if (array.length === 0) {
-        throw new TypeError('Массив пустой');
-    }
-
-    if (initial !== undefined) {
-        i = 0;
-        result = initial;
-    }
-
-    for (i; i < array.length; i++) {
-        result = fn(result, array[i], i, array);
-    }
-
-    return result;
+function skipDefault(eventName, target) {
+    target.addEventListener(eventName, e => e.preventDefault());
 }
 
-/*
- Задача 4:
- Функция принимает объект и имя свойства, которое необходиом удалить из объекта
- Функция должна удалить указанное свойство из указанного объекта
+/**
+ * Функция должна эмулировать событие click для элемента target
+ *
+ * @param {Element} target - элемент, на который нужно добавить обработчик
  */
-function deleteProperty(obj, prop) {
-    delete obj[prop];
+function emulateClick(target) {
 }
 
-/*
- Задача 5:
- Функция принимает объект и имя свойства и возвращает true или false
- Функция должна проверить существует ли укзаанное свойство в указанном объекте
+/**
+ * Функция должна добавить такой обработчик кликов к элементу target
+ * который реагирует (вызывает fn) только на клики по элементам BUTTON внутри target
+ *
+ * @param {Element} target - элемент, на который нужно добавить обработчик
+ * @param {function} fn - функция, которую нужно вызвать при клике на элемент BUTTON внутри target
  */
-function hasProperty(obj, prop) {
-    return obj.hasOwnProperty(prop);
+function delegate(target, fn) {
 }
 
-/*
- Задача 6:
- Функция должна получить все перечисляемые свойства объекта и вернуть их в виде массива
+/**
+ * *** Со звездочкой ***
+ * Функция должна добавить такой обработчик кликов к элементу target
+ * который сработает только один раз и удалится
+ * Постарайтесь не создавать глобальных переменных
+ *
+ * @param {Element} target - элемент, на который нужно добавить обработчик
+ * @param {function} fn - обработчик
  */
-function getEnumProps(obj) {
-    return Object.keys(obj);
-}
-
-/*
- Задача 7:
- Функция должна перебрать все свойства объекта, преобразовать их имена в верхний регистра и вернуть в виде массива
- */
-function upperProps(obj) {
-    var propName,
-        resultArray = [];
-
-    for (propName in obj) {
-        if (propName) {
-            resultArray.push(propName.toUpperCase());
-        }
-    }
-
-    return resultArray;
-}
-
-/*
- Задача 8 *:
- Напишите аналог встроенного метода slice для работы с массивами
- */
-function slice(array, from = 0, to = array.length) {
-    var i,
-        resultArray = [];
-
-    from = (from < 0 ? array.length + from : from);
-    to = (to < 0 ? array.length + to : to)
-
-    for (i = from; i < to; i++) {
-        if (!array[i]) {
-            continue;
-        }
-
-        resultArray.push(array[i]);
-    }
-
-    return resultArray;
-}
-
-/*
- Задача 9 *:
- Функция принимает объект и должна вернуть Proxy для этого объекта
- Proxy должен перехватывать все попытки записи значений свойств и возводить это значение в квадрат
- */
-function createProxy(obj) {
-
-    obj = new Proxy(obj, {
-        set(target, prop, value) {
-            target[prop] = Math.pow(value, 2);
-
-            return true;
-        }
-    });
-
-    return obj;
+function once(target, fn) {
 }
 
 export {
-    forEach,
-    map,
-    reduce,
-    deleteProperty,
-    hasProperty,
-    getEnumProps,
-    upperProps,
-    slice,
-    createProxy
+    addListener,
+    removeListener,
+    skipDefault,
+    emulateClick,
+    delegate,
+    once
 };
