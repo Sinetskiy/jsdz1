@@ -38,7 +38,9 @@ function skipDefault(eventName, target) {
  * @param {Element} target - элемент, на который нужно добавить обработчик
  */
 function emulateClick(target) {
-    var event = new CustomEvent('click');
+    var event;
+
+    event = new CustomEvent('click');
     target.dispatchEvent(event);
 }
 
@@ -51,7 +53,7 @@ function emulateClick(target) {
  */
 function delegate(target, fn) {
     target.addEventListener('click', (e) => {
-        if(e.target.tagName == 'BUTTON'){
+        if (e.target.tagName == 'BUTTON') {
             fn();
         }
     })
@@ -67,10 +69,12 @@ function delegate(target, fn) {
  * @param {function} fn - обработчик
  */
 function once(target, fn) {
-    var handler = function (e) {
-                        e.target.removeEventListener(e.type, arguments.callee);
-                        fn();
-                    }
+    var handler;
+
+    handler = function(e) {
+        fn();
+        e.target.removeEventListener(e.type, handler);
+    }
     target.addEventListener('click', handler);
 }
 
