@@ -122,7 +122,7 @@ function deleteTextNodesRecursive(where) {
     var nodes = where.childNodes;
 
     for (var i = 0; i < nodes.length; i++) {
-        if (nodes[i].nodeType == Node.ELEMENT_NODE && nodes[i].childNodes.length > 0) {
+        if (nodes[i].nodeType == Node.ELEMENT_NODE) {
             deleteTextNodesRecursive(nodes[i]);
         }
 
@@ -171,15 +171,15 @@ function collectDOMStat(root) {
         }
 
         if (node.nodeType == Node.ELEMENT_NODE) {
-            result.tags[node.tagName] = result.tags.hasOwnProperty(node.tagName) ? 
-                                            result.tags[node.tagName] + 1 : 1;
+            result.tags[node.tagName] = result.tags.hasOwnProperty(node.tagName) ?
+                result.tags[node.tagName] + 1 : 1;
 
             cssClasses = node.classList;
             for (cssClass of cssClasses) {
-                result.classes[cssClass] = result.classes.hasOwnProperty(cssClass) ? 
-                                            result.classes[cssClass] + 1 : 1;
+                result.classes[cssClass] = result.classes.hasOwnProperty(cssClass) ?
+                    result.classes[cssClass] + 1 : 1;
             }
-        
+
             if (node.childNodes.length > 0) {
                 result = collectDOMStat(node, result);
             }
@@ -220,7 +220,40 @@ function collectDOMStat(root) {
  *   nodes: [div]
  * }
  */
-function observeChildNodes(where, fn) {}
+function observeChildNodes(where, fn) {
+    var createArgObject = (type, nodeList, nodeArray) => {
+
+        for (let node of nodeList) {
+            nodeArray.push(node);
+        }
+
+        return { type: type, nodes: nodeArray };
+    }
+
+    var observer = new MutationObserver(function(mutations) {
+        let insertNodeArray = [];
+        let removeNodeArray = [];
+
+        mutations.forEach(function(mutation) {
+            if (mutation.type == 'childList') {
+
+                if (mutation.addedNodes.length > 0) {
+                    fn(createArgObject('insert', mutation.addedNodes, insertNodeArray));
+                }
+
+                if (mutation.removedNodes.length > 0) {
+                    fn(createArgObject('remove', mutation.removedNodes, removeNodeArray));
+                }
+            }
+        });
+    });
+
+    // конфигурация нашего observer:
+    var config = { subtree: true, childList: true, characterData: true };
+
+    // передаём в качестве аргументов целевой элемент и его конфигурацию
+    observer.observe(where, config);
+}
 
 export {
     createDivWithText,
