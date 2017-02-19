@@ -25,6 +25,27 @@ let homeworkContainer = document.querySelector('#homework-container');
  * @return {Element}
  */
 function createDiv() {
+    var width = getRandomInt(100, 300),
+        height = getRandomInt(100, 300),
+        div = document.createElement('div');
+
+    div.className = 'draggable-div';
+    div.style.width = width + 'px';
+    div.style.height = height + 'px';
+    div.style.position = 'absolute';
+    div.style.top = getRandomInt(0, window.innerHeight - height) + 'px';
+    div.style.left = getRandomInt(0, window.innerWidth - width) + 'px';
+    div.style.backgroundColor = rgb(getRandomInt(0, 255), getRandomInt(0, 255), getRandomInt(0, 255))
+
+    return div;
+}
+
+function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min)) + min;
+}
+
+function rgb(r, g, b) {
+    return `rgb(${r},${g},${b})`;
 }
 
 /**
@@ -33,6 +54,39 @@ function createDiv() {
  * @param {Element} target
  */
 function addListeners(target) {
+    var shiftX, shiftY, div;
+
+    var mouseDownHandler = function(e) {
+        let coords = getCoords(e.target);
+
+        div = e.target;
+        shiftX = e.pageX - coords.left;
+        shiftY = e.pageY - coords.top;
+
+        document.addEventListener('mousemove', mouseMoveHandler);
+        document.addEventListener('mouseup', mouseUpHandler);
+    }
+    var mouseMoveHandler = function(e) {
+        e.target.style.left = e.pageX - shiftX + 'px';
+        e.target.style.top = e.pageY - shiftY + 'px';
+    }
+    var mouseUpHandler = function(e) {
+        document.removeEventListener('mousemove', mouseMoveHandler);
+        document.removeEventListener('mouseup', mouseUpHandler);
+    }
+
+    target.parentNode.addEventListener('mousedown', mouseDownHandler);
+    target.addEventListener('dragstart', () => { return false; });
+}
+
+function getCoords(elem) {
+    var box = elem.getBoundingClientRect();
+
+    return {
+        top: box.top + pageYOffset,
+        left: box.left + pageXOffset
+    };
+
 }
 
 let addDivButton = homeworkContainer.querySelector('#addDiv');
