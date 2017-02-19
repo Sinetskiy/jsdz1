@@ -54,12 +54,11 @@ function rgb(r, g, b) {
  * @param {Element} target
  */
 function addListeners(target) {
-    var shiftX, shiftY, div;
+    var shiftX, shiftY;
 
     var mouseDownHandler = function(e) {
         let coords = getCoords(e.target);
 
-        div = e.target;
         shiftX = e.pageX - coords.left;
         shiftY = e.pageY - coords.top;
 
@@ -70,7 +69,7 @@ function addListeners(target) {
         e.target.style.left = e.pageX - shiftX + 'px';
         e.target.style.top = e.pageY - shiftY + 'px';
     }
-    var mouseUpHandler = function(e) {
+    var mouseUpHandler = function() {
         document.removeEventListener('mousemove', mouseMoveHandler);
         document.removeEventListener('mouseup', mouseUpHandler);
     }
