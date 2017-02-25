@@ -1,64 +1,50 @@
-/* ДЗ 6.1 - Асинхронность и работа с сетью */
+/* ДЗ 7.1 - BOM */
 
 /**
- * Функция должна создавать Promise, который должен быть resolved через seconds секунду после создания
+ * Функция должна создавать окно с указанным именем и размерами
  *
- * @param {number} seconds - количество секунд, через которое Promise должен быть resolved
- * @return {Promise}
+ * @param {number} name - имя окна
+ * @param {number} width - ширина окна
+ * @param {number} height - высота окна
+ * @return {Window}
  */
-function delayPromise(seconds) {
-    return new Promise((resolve, reject) => {
-        setTimeout(resolve, seconds * 1000);
-    });
+function createWindow(name, width, height) {
+    return window.open(null, name, `width=${width},height=${height}`);
 }
 
 /**
- * Функция должна вернуть Promise, который должен быть разрешен массивом городов, загруженным из
- * https://raw.githubusercontent.com/smelukov/citiesTest/master/cities.json
- * Элементы полученного массива должны быть отсортированы по имени города
+ * Функция должна закрывать указанное окно
  *
- * @return {Promise<Array<{name: String}>>}
+ * @param {Window} window - окно, размер которого надо изменить
  */
-function loadAndSortTowns() {
-    let url = 'https://raw.githubusercontent.com/smelukov/citiesTest/master/cities.json',
-        compare = function(a, b) {
-            if (a.name > b.name) {
-                return 1;
-            }
-            if (a.name < b.name) {
-                return -1;
-            }
+function closeWindow(window) {
+    window.close();
+}
 
-            return 0;
-        };
+/**
+ * Функция должна создавать cookie с указанными именем и значением
+ *
+ * @param name - имя
+ * @param value - значение
+ */
+function createCookie(name, value) {
+    document.cookie = `${name}=${value}`;
+}
 
-    return new Promise((resolve, reject) => {
-        var req = new XMLHttpRequest();
+/**
+ * Функция должна удалять cookie с указанным именем
+ *
+ * @param name - имя
+ */
+function deleteCookie(name) {
+    var date = new Date(0);
 
-        req.open('GET', url, true);
-        req.onload = function() {
-            if (this.status == 200) {
-                let towns = JSON.parse(this.response).sort(compare);
-
-                resolve(towns);
-            } else {
-                let error = new Error(this.statusText);
-                error.code = this.status;
-                reject(error);
-            }
-        }
-        req.onerror = function() {
-            reject(new Error('Не удалось загрузить города'));
-        }
-        req.ontimeout = function() {
-            reject('Время выполнения запроса истикло');
-        }
-        req.timeout = 3000;
-        req.send();
-    });
+    document.cookie = `${name}=;expires=" + ${date.toUTCString()}`;
 }
 
 export {
-    delayPromise,
-    loadAndSortTowns
+    createWindow,
+    closeWindow,
+    createCookie,
+    deleteCookie
 };
