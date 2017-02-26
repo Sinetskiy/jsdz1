@@ -93,22 +93,7 @@ function createCookieTr(name, value) {
 
     require('./index').createCookie(name, value);
 
-    if (!hasThisCookie(name)) {
-        listTable.appendChild(tr);
-    }
-}
-
-function hasThisCookie(name) {
-    let tds = listTable.getElementsByTagName('td'),
-        i;
-
-    for (i = 0; i < tds.length; i++) {
-        if (i % 3 == 0 && tds[i].innerText == name) {
-            return true;
-        }
-    }
-
-    return false;
+    listTable.appendChild(tr);
 }
 
 function filterCoockies(value) {
