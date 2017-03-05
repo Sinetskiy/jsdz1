@@ -38,7 +38,7 @@ function loadAndSortTowns() {
         req.open('GET', url, true);
         req.onload = function() {
             if (this.status == 200) {
-                let towns = JSON.parse(this.response).sort(compare);
+                let towns = this.response.sort(compare);
 
                 resolve(towns);
             } else {
@@ -53,6 +53,7 @@ function loadAndSortTowns() {
         req.ontimeout = function() {
             reject('Время выполнения запроса истикло');
         }
+        req.responseType = 'json'
         req.timeout = 3000;
         req.send();
     });

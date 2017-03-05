@@ -82,7 +82,7 @@ let fulfilled = function(towns) {
 let rejected = function(error) {
     let loadingBlokText = loadingBlock.innerHTML;
 
-    loadingBlock.innerHTML = error.message;
+    loadingBlock.innerHTML = error.message; //лучше создать отдельный блок для ошибок
     loadingBlock.style.display = 'block';
     filterBlock.style.display = 'none';
 
@@ -107,13 +107,18 @@ filterInput.addEventListener('keyup', function() {
     let value = this.value.trim();
     let resultStr = '';
 
+    if (filterInput.value == '') {
+        filterResult.innerHTML = resultStr;
+        return;
+    }
+
     for (let town of townsArr) {
         if (isMatching(town.name, value)) {
             resultStr += town.name + '</br>';
         }
     }
 
-    filterResult.innerHTML = filterInput.value != '' ? resultStr : '';
+    filterResult.innerHTML = resultStr;
 });
 
 townsPromise.then(fulfilled, rejected);
