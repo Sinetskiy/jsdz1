@@ -97,22 +97,29 @@ function createCookieTr(name, value) {
 }
 
 function filterCoockies(value) {
-    let cookiesArray = document.cookie.split(';');
+    let cookies = getCookies();
 
-    while (listTable.firstChild) {
+    while (listTable.firstChild) { //listTable.innerHTML = ''
         listTable.removeChild(listTable.firstChild);
     }
 
-    for (let cookie of cookiesArray) {
-        let cookieArr = cookie.split('='),
-            cookieName = cookieArr[0],
-            cookieValue = cookieArr[1];
-
-        if (cookieName && cookieValue &&
-            (isMatching(cookieName, value) || isMatching(cookieValue, value) || value == '')) {
-            createCookieTr(cookieName, cookieValue);
+    for (let cookieName in cookies) {
+        if (isMatching(cookies[cookieName], value) || isMatching(cookieName, value) || value == '') {
+            createCookieTr(cookieName, cookies[cookieName]);
         }
     }
+}
+
+function getCookies() {
+    return document.cookie
+        .split('; ')
+        .filter(Boolean)
+        .map(cookie => cookie.match(/^([^=]+)=(.+)/))
+        .reduce((obj, [, name, value]) => {
+            obj[name] = value;
+
+            return obj;
+        }, {});
 }
 
 filterNameInput.addEventListener('keyup', function() {
